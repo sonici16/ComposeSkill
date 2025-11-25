@@ -8,3 +8,4 @@ plugins {
 
     alias(libs.plugins.kotlin.parcelize) apply false// ✅ 이제 alias로 호출 가능
 }
+

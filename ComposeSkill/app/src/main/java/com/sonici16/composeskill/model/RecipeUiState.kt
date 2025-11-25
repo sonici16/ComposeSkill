@@ -1,4 +1,4 @@
-package com.sonici16.composeskill.ui.theme.model
+package com.sonici16.composeskill.model
 
 sealed class RecipeUiState {
     object Loading : RecipeUiState()

@@ -1,4 +1,4 @@
-package com.sonici16.composeskill.ui.theme.model
+package com.sonici16.composeskill.model
 
 class EnumContainer {
     enum class ContentType(val value: String) {
@@ -16,5 +16,7 @@ class EnumContainer {
             }
         }
     }
+
+    enum class SearchMode { TITLE, INGREDIENT }
 
 }

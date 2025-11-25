@@ -1,3 +1,4 @@
+import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,6 +7,18 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)  // ✅ 이제 alias로 호출 가능
     alias(libs.plugins.hilt)          // ✅ hilt alias 사용
 }
+
+val localProps = project.rootProject.file("local.properties")
+val properties = Properties().apply {
+    if (localProps.exists()) {
+        load(localProps.inputStream())
+    }
+}
+
+val API_Client: String = properties.getProperty("API_Client") as String? ?: ""
+val API_Secret: String = properties.getProperty("API_Secret") as String? ?: ""
+val BASE_URL: String = properties.getProperty("BASE_URL") as String? ?: ""
+
 
 android {
     namespace = "com.sonici16.composeskill"
@@ -19,7 +32,14 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "API_Client", "\"$API_Client\"")
+        buildConfigField("String", "API_Secret", "\"$API_Secret\"")
+        buildConfigField("String", "BASE_URL", "\"$BASE_URL\"")
+
     }
+
+
+
 
     buildTypes {
         release {
@@ -39,6 +59,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -46,6 +67,8 @@ dependencies {
 
     // build.gradle(app)
     implementation(libs.hilt.android)
+    implementation(libs.androidx.compose.ui.text)
+    implementation(libs.androidx.compose.foundation)
     annotationProcessor(libs.hilt.compiler)
     kapt("com.google.dagger:hilt-compiler:2.52")  // ✅ kapt 의존성
     implementation(libs.rxjava)
@@ -69,6 +92,8 @@ dependencies {
     implementation ("io.reactivex.rxjava2:rxjava:2.0.0")
     implementation ("io.reactivex.rxjava2:rxandroid:2.0.0")
 
+
+    implementation("androidx.navigation:navigation-compose:2.8.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

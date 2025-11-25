@@ -1,4 +1,4 @@
-package com.sonici16.composeskill.ui.theme.model
+package com.sonici16.composeskill.model
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
@@ -10,7 +10,7 @@ data class Root(
 @Parcelize
 data class Cookrcp01(
     val total_count: String,
-    val row: List<Row>,
+    val row: List<Row>?,
     val RESULT: Result
 ): Parcelable
 @Parcelize
