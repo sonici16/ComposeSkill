@@ -25,6 +25,7 @@ import coil.compose.AsyncImage
 import com.google.accompanist.pager.*
 import com.sonici16.composeskill.NaverShoppingViewModel
 import com.sonici16.composeskill.model.ShoppingItem
+import com.sonici16.composeskill.util.removeHtmlTags
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -92,7 +93,7 @@ fun TopBar() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(16.dp, bottom = 30.dp, end = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text("Naver Shopping", fontSize = 24.sp, fontWeight = FontWeight.Bold)
@@ -118,24 +119,25 @@ fun ShoppingPager(items: List<ShoppingItem>, onItemClick: (Int) -> Unit) {
             Card(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
-                    .fillMaxSize()
-                    .clickable { onItemClick(page) },
+                    .fillMaxWidth()
+                    .aspectRatio(1f),   // 정사각형으로 맞춤
                 shape = RoundedCornerShape(16.dp)
             ) {
                 AsyncImage(
                     model = item.image,
-                    contentDescription = item.title,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
             }
         }
 
-        Spacer(Modifier.height(10.dp))
+        Spacer(Modifier.height(40.dp))
 
         val current = items[pagerState.currentPage]
 
         Text(
-            current.title,
+            text = removeHtmlTags(current.title),
             modifier = Modifier.padding(horizontal = 16.dp),
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold
@@ -175,7 +177,7 @@ fun ShoppingSection(items: List<ShoppingItem>, onItemClick: (Int) -> Unit) {
                     )
                     Spacer(Modifier.height(6.dp))
                     Text(
-                        item.title,
+                        text = removeHtmlTags(item.title),
                         fontSize = 11.sp,
                         maxLines = 2,
                         textAlign = TextAlign.Center,

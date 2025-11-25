@@ -5,6 +5,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -29,6 +32,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.sonici16.composeskill.NaverShoppingViewModel
 import com.sonici16.composeskill.model.ShoppingItem
+import com.sonici16.composeskill.util.removeHtmlTags
 
 @Composable
 fun SearchScreen(
@@ -41,6 +45,7 @@ fun SearchScreen(
     val loading by viewModel.loading.collectAsState()
     val error by viewModel.errorMessage.collectAsState()
 
+    // 검색 화면 진입 시 이전 결과 초기화
     LaunchedEffect(Unit) {
         query = ""
         viewModel.resetSearch()
@@ -51,7 +56,7 @@ fun SearchScreen(
             .fillMaxSize()
             .background(Color.White)
     ) {
-
+        // 검색창 UI
         SearchTopBar(
             query = query,
             onBack = { navController?.navigateUp() },
@@ -65,19 +70,41 @@ fun SearchScreen(
 
         Spacer(Modifier.height(12.dp))
 
+        // 화면 상태에 따라 UI 분기
         when {
-            loading -> CenterCircle()
-            error != null -> CenterText("오류 발생: $error", Color.Red)
-            results.isEmpty() -> EmptySearchUI()
-            else -> ShoppingResultGrid(
-                results = results,
-                onItemClick = { index ->
-                    navController?.navigate("detail/search/$index")
+            error != null ->
+                CenterText("오류 발생: $error", Color.Red)
+
+            // 검색 결과 없음 + 로딩 아님 → 초기 안내 화면
+            results.isEmpty() && !loading ->
+                EmptySearchUI()
+
+            else -> {
+                // 스크롤 튐 방지를 위해 LazyVerticalGrid는 항상 유지
+                Box(Modifier.fillMaxSize()) {
+
+                    ShoppingResultGrid(
+                        results = results,
+                        onItemClick = { index ->
+                            navController?.navigate("detail/search/$index")
+                        },
+                        viewModel = viewModel
+                    )
+
+                    // 페이징 로딩 시 그리드 위에 표시 (그리드를 재생성하지 않음)
+                    if (loading && results.isNotEmpty()) {
+                        CircularProgressIndicator(
+                            Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = 24.dp)
+                        )
+                    }
                 }
-            )
+            }
         }
     }
 }
+
 
 @Composable
 fun CenterCircle() = Box(Modifier.fillMaxSize(), Alignment.Center) {
@@ -182,17 +209,44 @@ fun EmptySearchUI() {
     }
 }
 @Composable
-fun ShoppingResultGrid(results: List<ShoppingItem>, onItemClick: (Int) -> Unit) {
+fun ShoppingResultGrid(
+    results: List<ShoppingItem>,
+    onItemClick: (Int) -> Unit,
+    viewModel: NaverShoppingViewModel
+) {
+    val loading by viewModel.loading.collectAsState()
+
+    // 스크롤 위치가 리셋되지 않도록 상태를 기억
+    val gridState = rememberLazyGridState()
+
     LazyVerticalGrid(
+        state = gridState, // 스크롤 유지 핵심
         columns = GridCells.Fixed(2),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(16.dp),
         modifier = Modifier.fillMaxSize()
     ) {
-        items(results.size) { index ->
-            val item = results[index]
 
+        /**
+         *  핵심 1: itemsIndexed + key
+         *
+         *  - key를 주면 Compose가 아이템을 안정적으로 추적
+         *  - 리스트가 업데이트되어도 스크롤 위치가 유지됨
+         *  - productId는 네이버 쇼핑 상품의 고유 값이므로 key로 최적
+         */
+        itemsIndexed(
+            items = results,
+            key = { _, item -> item.productId }
+        ) { index, item ->
+
+            // 마지막 아이템에 도달 → 다음 페이지 로딩 요청
+            // loading 값으로 중복 호출은 ViewModel에서 자동 방지
+            if (index == results.lastIndex && !loading) {
+                viewModel.loadNextPage()
+            }
+
+            // 상품 UI 1개
             Column(
                 modifier = Modifier
                     .clip(RoundedCornerShape(16.dp))
@@ -205,21 +259,26 @@ fun ShoppingResultGrid(results: List<ShoppingItem>, onItemClick: (Int) -> Unit) 
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .height(130.dp)
-                        .clip(RoundedCornerShape(16.dp))
                         .fillMaxWidth()
                 )
 
-                Spacer(Modifier.height(6.dp))
-
                 Text(
-                    text = item.title.replace("<b>", "").replace("</b>", ""),
+                    text = removeHtmlTags(item.title),
+                    modifier = Modifier.padding(8.dp),
                     fontSize = 14.sp,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(8.dp),
-                    fontWeight = FontWeight.SemiBold
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
+
+        /**
+         * 페이징 로딩 인디케이터는 SearchScreen에서 오버레이 방식으로 처리하므로
+         * 여기는 빈 상태.
+         *
+         * (Grid 내부에 두면 재생성 유발 → 스크롤 튐 원인)
+         */
     }
 }
+
+

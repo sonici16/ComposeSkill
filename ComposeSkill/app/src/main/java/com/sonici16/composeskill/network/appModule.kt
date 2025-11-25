@@ -12,32 +12,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 @Module
 @InstallIn(SingletonComponent::class) // ✅ 전역(Singleton) 범위로 모듈 등록
 object AppModule {
-//    @Provides
-//    @Singleton
-//    fun provideRetrofit(): Retrofit {
-//
-//        val gson : Gson = GsonBuilder()
-//            .setLenient()
-//            .create()
-//
-//        return Retrofit.Builder()
-//            .baseUrl("http://openapi.foodsafetykorea.go.kr/api/74ea102bd31144cfb660/COOKRCP01/json/") // ✅ 실제 API 주소 넣으세요
-//            .addConverterFactory(GsonConverterFactory.create(gson))
-//            .build()
-//    }
-//
-//    @Provides
-//    @Singleton
-//    fun provideRecipeApi(retrofit: Retrofit): MyRecipeApi {
-//        return retrofit.create(MyRecipeApi::class.java)
-//    }
-//
-//    @Provides
-//    @Singleton
-//    fun provideRepository(api: MyRecipeApi): RecipeRepository {
-//        return RecipeRepository(api)
-//    }
-//
     @Provides
     @Singleton
     fun provideOkHttpClient(): OkHttpClient {
@@ -58,7 +32,7 @@ object AppModule {
     @Singleton
     fun provideRetrofit(client: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BuildConfig.BASE_URL)
+            .baseUrl("https://openapi.naver.com/")
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

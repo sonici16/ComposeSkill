@@ -31,3 +31,4 @@ fun MyApp(viewModel: NaverShoppingViewModel) {
         }
     }
 }
+

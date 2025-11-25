@@ -17,7 +17,7 @@ val properties = Properties().apply {
 
 val API_Client: String = properties.getProperty("API_Client") as String? ?: ""
 val API_Secret: String = properties.getProperty("API_Secret") as String? ?: ""
-val BASE_URL: String = properties.getProperty("BASE_URL") as String? ?: ""
+
 
 
 android {
@@ -34,7 +34,6 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "API_Client", "\"$API_Client\"")
         buildConfigField("String", "API_Secret", "\"$API_Secret\"")
-        buildConfigField("String", "BASE_URL", "\"$BASE_URL\"")
 
     }
 
@@ -69,6 +68,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.androidx.compose.ui.text)
     implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.navigation.runtime.ktx)
     annotationProcessor(libs.hilt.compiler)
     kapt("com.google.dagger:hilt-compiler:2.52")  // ✅ kapt 의존성
     implementation(libs.rxjava)
