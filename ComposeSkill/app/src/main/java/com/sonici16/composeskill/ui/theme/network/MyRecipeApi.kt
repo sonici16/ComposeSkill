@@ -8,6 +8,6 @@ interface MyRecipeApi {
     suspend fun getRecipes(
         @Path("startIdx") startIdx: Int,
         @Path("endIdx") endIdx: Int,
-        @Path("category") category: String
+        @Path("category") category: String //
     ): Root
 }
