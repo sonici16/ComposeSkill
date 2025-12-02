@@ -12,7 +12,8 @@ hilt = "2.52"
 carUiLib = "2.6.0"
 uiText = "1.9.5"
 foundation = "1.9.5"
-navigationRuntimeKtx = "2.9.6" # ✅ Hilt 버전 추가
+navigationRuntimeKtx = "2.9.6"
+animation = "1.9.5" # ✅ Hilt 버전 추가
 
 [libraries]
 rxjava = { group = "io.reactivex.rxjava2", name = "rxjava", version = "2.2.21" }
@@ -36,6 +37,7 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 androidx-compose-ui-text = { group = "androidx.compose.ui", name = "ui-text", version.ref = "uiText" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
+androidx-compose-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "animation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

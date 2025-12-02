@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.text)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.navigation.runtime.ktx)
+    implementation(libs.androidx.compose.animation)
     annotationProcessor(libs.hilt.compiler)
     kapt("com.google.dagger:hilt-compiler:2.52")  // ✅ kapt 의존성
     implementation(libs.rxjava)
@@ -94,6 +95,7 @@ dependencies {
 
 
     implementation("androidx.navigation:navigation-compose:2.8.0")
+    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.9.2")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

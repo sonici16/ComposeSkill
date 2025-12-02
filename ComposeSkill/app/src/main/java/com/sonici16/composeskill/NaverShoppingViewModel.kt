@@ -1,10 +1,15 @@
 package com.sonici16.composeskill
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sonici16.composeskill.model.CategoryNode
 import com.sonici16.composeskill.model.ShoppingItem
+import com.sonici16.composeskill.navigaton.Screen
 import com.sonici16.composeskill.network.NaverShoppingApi
+import com.sonici16.composeskill.util.buildCategoryTree
+import com.sonici16.composeskill.util.loadCategoryCsv
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -40,6 +45,23 @@ class NaverShoppingViewModel @Inject constructor(
     private var currentQuery: String = ""
     private var currentStart = 1               // 현재 요청 시작 위치
     private val displayCount = 30              // 한 페이지 당 요청 개수
+
+
+    private val _tree = MutableStateFlow<List<CategoryNode>>(emptyList())
+    val categoryTree: StateFlow<List<CategoryNode>> = _tree
+
+
+    // 현재 선택된 카테고리 경로 (e.g. [대,중,소])
+    // 선택 경로 (Breadcrumb 용)
+    private val _selectedPath = MutableStateFlow<List<CategoryNode>>(emptyList())
+    val selectedPath: StateFlow<List<CategoryNode>> = _selectedPath
+    /**
+     * 카테고리 상품 결과 + 로딩 상태 관리
+     */
+    private val _items = MutableStateFlow<List<ShoppingItem>>(emptyList())
+    val items: StateFlow<List<ShoppingItem>> = _items
+
+
 
     /**
      * 홈 화면 초기 로딩
@@ -112,7 +134,6 @@ class NaverShoppingViewModel @Inject constructor(
                 )
 
                 val newItems = response.items ?: emptyList()
-
                 // 기존 데이터 + 새로 로딩한 데이터
                 _searchResults.value = _searchResults.value + newItems
 
@@ -129,5 +150,76 @@ class NaverShoppingViewModel @Inject constructor(
      */
     fun resetSearch() {
         _searchResults.value = emptyList()
+    }
+
+    // 카테고리 선택
+    fun selectCategory(node: CategoryNode) {
+        _selectedPath.value = _selectedPath.value + node
+
+        if (node.children.isEmpty()) {
+            loadCategoryProducts(node.name) //  딱 여기 한 번만 호출
+        } else {
+            // 중간 Depth → 상품 숨기기
+            _items.value = emptyList()
+        }
+    }
+
+
+
+    fun initCategory(context: Context) {
+        viewModelScope.launch {
+            try {
+                val rows = loadCategoryCsv(context)
+                val tree = buildCategoryTree(rows)
+                _tree.value = tree
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+    /**
+     * Breadcrumb 뒤로가기 (상위 카테고리로 이동)
+     * @return true → 화면에서 pop 안 하고 카테고리 UI만 갱신
+     * @return false → 더 이상 뒤로갈 Depth 없음 → Activity/Navigation에 popBackStack 요청
+     */
+    fun popCategory(): Boolean {
+        val path = _selectedPath.value
+
+        if (path.isEmpty()) return false
+
+        val newPath = path.dropLast(1)
+        _selectedPath.value = newPath
+
+        if (newPath.isEmpty()) {
+            // 최상위로 돌아갈 경우 → 상품 숨기기
+            _items.value = emptyList()
+        }
+
+        //  절대 재검색하지 않음!!!
+        return true
+    }
+
+
+    fun loadCategoryProducts(categoryName: String) {
+        viewModelScope.launch {
+            _loading.value = true
+            try {
+                val response = api.searchShopping(
+                    query = categoryName,
+                    display = 30
+                )
+                _items.value = response.items ?: emptyList() // CategoryScreen에서 확인하는 데이터
+            } catch (e: Exception) {
+                _errorMessage.value = e.message
+            } finally {
+                _loading.value = false
+            }
+        }
+    }
+
+
+    fun clearItems() {
+        _items.value = emptyList()
+        popCategory()
     }
 }

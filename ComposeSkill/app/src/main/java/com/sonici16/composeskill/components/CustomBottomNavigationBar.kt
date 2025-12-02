@@ -28,7 +28,7 @@ fun CustomBottomNavigationBar(
         Screen.Home to Icons.Default.Home,
         Screen.Search to Icons.Default.Search,
         Screen.Add to Icons.Default.Add,
-        Screen.Menu to Icons.Default.Menu,
+        Screen.Category to Icons.Default.Menu,
         Screen.Profile to Icons.Default.Person
     )
 

@@ -9,7 +9,6 @@ import androidx.navigation.compose.composable
 import com.sonici16.composeskill.NaverShoppingViewModel
 import com.sonici16.composeskill.screens.*
 import com.sonici16.composeskill.screens.AddScreen
-import com.sonici16.composeskill.screens.MenuScreen
 import com.sonici16.composeskill.screens.ProfileScreen
 import com.sonici16.composeskill.screens.SearchScreen
 import com.sonici16.composeskill.screens.HomeScreen
@@ -44,7 +43,12 @@ fun NavGraph(
         }
 
         composable(Screen.Add.route) { AddScreen() }
-        composable(Screen.Menu.route) { MenuScreen() }
+        composable(Screen.Category.route) {
+            CategoryScreen(
+                viewModel = viewModel,  // << 공용 ViewModel
+                navController = navController
+            )
+        }
         composable(Screen.Profile.route) { ProfileScreen() }
 
         // ---------------- Detail ----------------
@@ -58,6 +62,7 @@ fun NavGraph(
                 "main" -> viewModel.mainItems.collectAsState().value
                 "list" -> viewModel.itemsList.collectAsState().value
                 "search" -> viewModel.searchResults.collectAsState().value
+                "category" -> viewModel.items.collectAsState().value
                 else -> emptyList()
             }
 

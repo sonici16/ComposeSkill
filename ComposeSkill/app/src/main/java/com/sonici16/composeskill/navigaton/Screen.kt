@@ -6,7 +6,7 @@ sealed class Screen(val route: String) {
     object Home : Screen("home")        // 홈 화면
     object Search : Screen("search")    // 검색 화면
     object Add : Screen("add")          // 추가 화면 (+ 버튼)
-    object Menu : Screen("menu")        // 메뉴 화면
+    object Category : Screen("category")        // 메뉴 화면
     object Profile : Screen("profile")  // 내 정보 화면
 
     object Detail : Screen("detail/{recipeId}") { // 레시피 화면
