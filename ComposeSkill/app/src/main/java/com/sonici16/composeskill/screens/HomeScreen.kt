@@ -72,7 +72,6 @@ fun HomeScreen(
         item { Spacer(Modifier.height(60.dp)) }
     }
 }
-
 @Composable
 fun LoaderBox() = Box(
     modifier = Modifier
@@ -96,7 +95,7 @@ fun TopBar() {
             .padding(16.dp, bottom = 30.dp, end = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text("Naver Shopping", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        Text("Shopping!!!", fontSize = 24.sp, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -105,7 +104,6 @@ fun TopBar() {
 fun ShoppingPager(items: List<ShoppingItem>, onItemClick: (Int) -> Unit) {
     val pagerState = rememberPagerState()
     val total = items.size
-
     Column {
         HorizontalPager(
             count = total,
@@ -120,7 +118,7 @@ fun ShoppingPager(items: List<ShoppingItem>, onItemClick: (Int) -> Unit) {
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .fillMaxWidth()
-                    .aspectRatio(1f),   // 정사각형으로 맞춤
+                    .aspectRatio(1f),
                 shape = RoundedCornerShape(16.dp)
             ) {
                 AsyncImage(

@@ -1,6 +1,7 @@
 package com.sonici16.composeskill.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -23,7 +24,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.sonici16.composeskill.NaverShoppingViewModel
 import com.sonici16.composeskill.components.ShoppingResultItem
-import com.sonici16.composeskill.navigaton.Screen
 
 @Composable
 fun SearchScreen(
@@ -39,8 +39,7 @@ fun SearchScreen(
     // 검색 화면 진입 시 이전 결과 초기화
     LaunchedEffect(Unit) {
         query = ""
-        viewModel.resetSearch()
-
+        //viewModel.resetSearch()
     }
 
     Column(
@@ -57,7 +56,8 @@ fun SearchScreen(
                 if (query.length >= 2) {
                     viewModel.search(query)
                 }
-            }
+            },
+            viewModel = viewModel
         )
 
         Spacer(Modifier.height(12.dp))
@@ -68,7 +68,12 @@ fun SearchScreen(
                 CenterText("오류 발생: $error", Color.Red)
             // 검색 결과 없음 + 로딩 아님 → 초기 안내 화면
             results.isEmpty() && !loading ->
-                EmptySearchUI()
+                EmptySearchUI(
+                    onTagClick = { tag ->
+                        query = tag
+                        viewModel.search(tag)
+                    }
+                )
 
             else -> {
                 // 스크롤 튐 방지를 위해 LazyVerticalGrid는 항상 유지
@@ -107,7 +112,8 @@ fun SearchTopBar(
     query: String,
     onQueryChange: (String) -> Unit,
     onSearch: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    viewModel: NaverShoppingViewModel
 ) {
     val keyboard = LocalSoftwareKeyboardController.current
 
@@ -117,7 +123,8 @@ fun SearchTopBar(
             .padding(16.dp)
     ) {
 
-        IconButton(onClick = onBack) {
+        IconButton(onClick =
+            { viewModel.resetSearch() }) {
             Icon(
                 Icons.Default.ArrowBack,
                 contentDescription = "뒤로가기",
@@ -163,7 +170,9 @@ fun SearchTopBar(
     }
 }
 @Composable
-fun EmptySearchUI() {
+fun EmptySearchUI(
+    onTagClick: (String) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -182,6 +191,7 @@ fun EmptySearchUI() {
                 Box(
                     modifier = Modifier
                         .background(Color(0xFFF6F6F6), RoundedCornerShape(20.dp))
+                        .clickable { onTagClick(tag) }   // 클릭 시 검색 실행!
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
                     Text(tag)
@@ -193,6 +203,7 @@ fun EmptySearchUI() {
         Text("검색해서 원하는 상품을 찾아보세요!", color = Color.Gray)
     }
 }
+
 
 
 
